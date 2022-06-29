@@ -15,7 +15,7 @@ import {
   ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
+  Text, TextInput,
   useColorScheme,
   View,
 } from "react-native";
@@ -76,12 +76,13 @@ const App = () => {
         <View
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
+            flex:1
           }}>
           <Section title="Step One">
             Edit <Text style={styles.highlight}>App.tsx</Text> t
-            <WebReq/>
           </Section>
         </View>
+        <WebReq/>
       </ScrollView>
     </SafeAreaView>
   );
