@@ -29,6 +29,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import WebReq from "./webReq";
+import Account from "./Account";
 
 const Section: React.FC<{
   children: React.ReactNode;
@@ -69,19 +70,12 @@ const App = () => {
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <Section title="Accounts">
+        <Account/>
+      </Section>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            flex:1
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> t
-          </Section>
-        </View>
         <WebReq/>
       </ScrollView>
     </SafeAreaView>
