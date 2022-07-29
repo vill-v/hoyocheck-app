@@ -2,27 +2,27 @@ import React from 'react';
 import { Button, ScrollView, Text, View } from "react-native";
 import TestData from "./testdata";
 
-const cookies = {
-  "_MHYUUID": "9999f00d-ab12-123a-12a1-a0b1c2d3e4f5",
-  "mi18nLang": "en-us",
-  "account_id": "000012345",
-  "cookie_token": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "ltoken": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "ltuid": "123456789"
-}
-
 const sim = 1;
 const INDEX_URL = sim ? "http://192.168.0.15:3000/" : "https://act.hoyolab.com/bbs/event/signin-bh3/index.html?act_id=e202110291205111";
 const INFO_URL = sim ? "http://192.168.0.15:3000/info" : "https://sg-public-api.hoyolab.com/event/mani/info?lang=en-us&act_id=e202110291205111";
 const SIGN_URL = sim ? "http://192.168.0.15:3000/sign" : "https://sg-public-api.hoyolab.com/event/mani/sign";
 const Debug = {log:console.log.bind(console)}
 
+let currentCookie = "";
+
+function formatCookie(cookie:AccountCookie):string{
+  return Object.keys(cookie)
+    .map(k=>`${k}=${cookie[k]}`)
+    .join("; ");
+}
 
 async function req(self:WebReq){
+  currentCookie = formatCookie(self.props.currentAccount.cookie);
   let res;
   try{
     res = await checkin(false);
     self.setState({"hello":JSON.stringify(res)});
+    self.props.setLastResult(res);
   }
   catch (e) {
     console.log("errrrr", (e as Error).name, (e as Error).message, (e as Error).stack);
@@ -33,14 +33,17 @@ async function req(self:WebReq){
 }
 
 async function checkin(signInExecuted?:boolean):Promise<CheckInResult>{
+  const headers = new Headers(TestData().getheaders);
+  //todo "Cookie" is a forbidden header in the standard, but works fine here; confirm behavior
+  headers.set("Cookie", currentCookie);
   const info:MihoyoInfo = await fetch(new Request(INFO_URL, {
     method: "GET",
-    headers: new Headers(TestData().getheaders)
+    headers: headers
   }))
-    // .then(function (response:Response) {
-    // 	Debug.log("info","fetch-info",[response.status, response.type, response.headers.keys(), response.headers.values()]);
-    // 	return response;
-    // })
+    .then(function (response:Response) {
+      Debug.log("info","fetch-info",[response.status, response.type, response.headers]);
+    	return response;
+    })
     .then(e=>e.json())
     .catch(e=>Debug.log("err","fetch-info",e));
   const data = readMihoyoInfo(info);
@@ -110,11 +113,13 @@ async function doSignIn(){
   Debug.log("info","fetch-sign","attempting POST request");
   // appStatus.lastCheckin = Date.now();
 
+  const headers = new Headers(TestData().getheaders);
+  headers.set("Cookie", currentCookie);
+
   const options:RequestInit = {
     method: "POST",
-    headers: new Headers(TestData().postheaders),
-    body: `{"act_id":"e202110291205111"}`,
-    // credentials: "include"
+    headers: headers,
+    body: `{"act_id":"e202110291205111"}`
   }
   const result:MihoyoCheckInResult = await fetch(SIGN_URL, options)
     .then(function (response:Response) {
@@ -153,12 +158,6 @@ export default class WebReq extends React.Component{
   };
   constructor(props) {
     super(props);
-    cookies._MHYUUID = TestData().cookie._MHYUUID;
-    cookies.account_id = TestData().cookie.account_id;
-    cookies.cookie_token = TestData().cookie.cookie_token;
-    cookies.ltoken = TestData().cookie.ltoken;
-    cookies.ltuid = TestData().cookie.ltuid;
-    cookies.mi18nLang = TestData().cookie.mi18nLang;
     this.state= {hello:"hello"};
   };
   render() {

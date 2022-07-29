@@ -45,6 +45,8 @@ interface MihoyoCheckInData{
 	today:string;
 	is_sign:boolean;
 	first_bind:boolean;
+	is_sub?:boolean;//no idea what this means
+	region?:string;//seems to just be ""
 }
 
 interface MihoyoHome{
