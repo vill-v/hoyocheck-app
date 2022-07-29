@@ -5,6 +5,22 @@ type BetaLogHeading = "popup-open"|"popup-get-status"|"popup-display-info"|"popu
 	"alarm"|"alarm-set"|"icon"|
 	"fetch-home"|"fetch-info"|"fetch-sign"|"checkin";
 
+interface AppAccount {
+	name: string,
+	cookie: AccountCookie,
+	honkai: boolean,
+	genshin: boolean
+}
+
+interface AccountCookie {
+	"_MHYUUID": string,
+	"mi18nLang": string,
+	"account_id": string, //number,
+	"cookie_token": string,
+	"ltoken": string,
+	"ltuid": string, //number,
+}
+
 interface CheckInResult {
 	success: boolean;
 	checkinAttempted: boolean;

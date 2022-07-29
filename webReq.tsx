@@ -144,6 +144,10 @@ async function doSignIn(){
 
 
 export default class WebReq extends React.Component{
+  declare props:{
+    setLastResult:Function,
+    currentAccount:AppAccount
+  };
   declare state: {
     hello:string
   };
@@ -159,8 +163,10 @@ export default class WebReq extends React.Component{
   };
   render() {
     return (<ScrollView style={{
-      flex:1,
-      borderWidth: 5,
+      flexBasis: 100,
+      flexGrow: 1,
+      flexShrink: 0,
+      borderWidth: 1,
       borderColor: "#5ACB33",
     }}>
       <Button title={"hello world"} onPress={() => req(this) && this.setState({"hello":"world"})}/>
