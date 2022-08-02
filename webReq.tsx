@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, ScrollView, Text, View } from "react-native";
 import TestData from "./testdata";
+import {mainContext} from "./mainContext";
 
 const sim = 1;
 const INDEX_URL = sim ? "http://192.168.0.15:3000/" : "https://act.hoyolab.com/bbs/event/signin-bh3/index.html?act_id=e202110291205111";
@@ -16,13 +17,13 @@ function formatCookie(cookie:AccountCookie):string{
     .join("; ");
 }
 
-async function req(self:WebReq){
-  currentCookie = formatCookie(self.props.currentAccount.cookie);
+async function req(self, currentAccount, setLastResult){
+  currentCookie = formatCookie(currentAccount.cookie);
   let res;
   try{
     res = await checkin(false);
     self.setState({"hello":JSON.stringify(res)});
-    self.props.setLastResult(res);
+    setLastResult(res);
   }
   catch (e) {
     console.log("errrrr", (e as Error).name, (e as Error).message, (e as Error).stack);
@@ -149,10 +150,6 @@ async function doSignIn(){
 
 
 export default class WebReq extends React.Component{
-  declare props:{
-    setLastResult:Function,
-    currentAccount:AppAccount
-  };
   declare state: {
     hello:string
   };
@@ -168,7 +165,11 @@ export default class WebReq extends React.Component{
       borderWidth: 1,
       borderColor: "#5ACB33",
     }}>
-      <Button title={"hello world"} onPress={() => req(this) && this.setState({"hello":"world"})}/>
+      <mainContext.Consumer>
+        {({activeAccount, setLastResult}) => (
+          <Button title={"hello world"} onPress={() => req(this, activeAccount, setLastResult) && this.setState({"hello":"world"})}/>
+          )}
+      </mainContext.Consumer>
       <Text>this.state= {this.state.hello}</Text>
     </ScrollView>);
   }

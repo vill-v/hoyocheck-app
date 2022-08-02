@@ -1,12 +1,12 @@
-import React from 'react';
-import {
-  SafeAreaView,
-  StatusBar,
-} from "react-native";
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import Home from "./Home";
+import {mainContext} from "./mainContext";
+import AccountInput from "./AccountInput";
 
-import WebReq from "./webReq";
-import Account from "./Account";
-import Status from "./Status";
+const stack = createNativeStackNavigator();
+
 
 export default class App extends React.Component {
   declare state:{
@@ -27,16 +27,18 @@ export default class App extends React.Component {
   setLastResult(e){this.setState({ "lastResult": e })}
   render() {
     return (
-      <SafeAreaView style={{
-        height: "100%"
+      <mainContext.Provider value={{...this.state,
+        setAccounts:this.setAccounts.bind(this),
+        setActiveAccount:this.setActiveAccount.bind(this),
+        setLastResult:this.setLastResult.bind(this),
       }}>
-        <StatusBar barStyle={'dark-content'} />
-        <Account minimize={true} setAccounts={this.setAccounts.bind(this)}
-                 setActive={this.setActiveAccount.bind(this)}/>
-        <Status checkin={this.state.lastResult}/>
-        <WebReq setLastResult={this.setLastResult.bind(this)}
-                currentAccount={this.state.activeAccount}/>
-      </SafeAreaView>
+        <NavigationContainer>
+          <stack.Navigator>
+            <stack.Screen name={"Home"} component={Home}/>
+            <stack.Screen name={"Add Account"} component={AccountInput}/>
+          </stack.Navigator>
+        </NavigationContainer>
+      </mainContext.Provider>
     );
   }
 }

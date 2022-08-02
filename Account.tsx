@@ -1,6 +1,8 @@
 import React from 'react';
-import { FlatList, ScrollView, Text, View } from "react-native";
+import { FlatList, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import TestData from "./testdata";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {mainContext} from "./mainContext";
 
 const testAcc1 = {
   name: "Conductor Vill-V",
@@ -49,13 +51,22 @@ const accounts:AppAccount[] = [testAcc1, testAcc2, testAcc3, testAcc4, testAcc5,
 export default class Account extends React.Component{
   declare props:{
     minimize: boolean,
-    setActive: Function,
+    navigation;
+  }
+  declare context:{
+    setActiveAccount: Function,
     setAccounts: Function
   }
+  static contextType = mainContext;
+
   constructor(props) {
     super(props);
-    props.setAccounts(accounts);
-    props.setActive(accounts[0]);
+  }
+
+  componentDidMount() {
+    console.log("Account context after mount",this.context)
+    this.context.setAccounts(accounts);
+    this.context.setActiveAccount(accounts[0]);
   }
 
   render() {
@@ -64,34 +75,36 @@ export default class Account extends React.Component{
       borderWidth:1,
       borderColor:"#ff0000"
     }}>
-      <FlatList data={accounts}
-                ListHeaderComponent={<Text style={{
-                  fontWeight:"bold"
-                }}>
-                  Accounts saved
-                </Text>}
-                renderItem={
-        ({ item, index, separators } ) => {
-          if(this.props.minimize){
-            if(index === 2 && accounts.length > 3){
-              return (<View
-                style={{display:"flex", flexDirection:"row", justifyContent:"space-between", width:200}}>
-                <Text>{index+1}.</Text>
-                <Text>{"more..."}</Text>
-              </View>);
-            }
-            if(index > 2){
-              return null;
-            }
-          }
-          return (<View
-        style={{display:"flex", flexDirection:"row", justifyContent:"space-between", width:200}}>
-          <Text>{index+1}.</Text>
-          <Text>{item.name}</Text>
-          <Text>{item.cookie.account_id}</Text>
-        </View>);
-        }
-      }/>
+      <TouchableOpacity onPress={event => this.props.navigation.navigate("Add Account")}>
+        <FlatList data={accounts}
+                  ListHeaderComponent={<Text style={{
+                    fontWeight:"bold"
+                  }}>
+                    Accounts saved
+                  </Text>}
+                  renderItem={
+                    ({ item, index, separators } ) => {
+                      if(this.props.minimize){
+                        if(index === 2 && accounts.length > 3){
+                          return (<View
+                            style={{display:"flex", flexDirection:"row", justifyContent:"space-between", width:200}}>
+                            <Text>{index+1}.</Text>
+                            <Text>{"more..."}</Text>
+                          </View>);
+                        }
+                        if(index > 2){
+                          return null;
+                        }
+                      }
+                      return (<View
+                        style={{display:"flex", flexDirection:"row", justifyContent:"space-between", width:200}}>
+                        <Text>{index+1}.</Text>
+                        <Text>{item.name}</Text>
+                        <Text>{item.cookie.account_id}</Text>
+                      </View>);
+                    }
+                  }/>
+      </TouchableOpacity>
     </View>);
   }
 }
